@@ -130,8 +130,3 @@ fun PreviewGroupedCodes() {
         .mapIndexed { index, pair -> Code("Issuer ${(index % 5)}", pair.first, "") }
     GroupedCodes(codes = codes)
 }
-
-
-// sort by alphabetical with ability to pin
-// group by category (website) and allow collapsible groups
-// search

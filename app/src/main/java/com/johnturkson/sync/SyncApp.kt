@@ -23,6 +23,7 @@ fun SyncApp() {
         val viewModel = viewModel(CodeViewModel::class.java)
         val progress by viewModel.progress.collectAsState()
         val search by viewModel.search.collectAsState()
+        val codes by viewModel.codes.collectAsState(initial = emptyList<com.johnturkson.sync.data.Code>())
         
         val toolbarHeight = 72.dp
         val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
