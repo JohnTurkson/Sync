@@ -18,6 +18,7 @@ class HomeViewModel @Inject internal constructor(accountRepository: AccountRepos
     private val interval = 30000L
     private val period = 3L
     private val delta = period.toFloat() / interval.toFloat()
+    private val completion = 1f
     private val internalProgress = MutableStateFlow((System.currentTimeMillis() % interval) / interval.toFloat())
     private val internalSelected = MutableStateFlow<List<Account>>(emptyList())
     private val internalSearch = MutableStateFlow("")
@@ -32,8 +33,17 @@ class HomeViewModel @Inject internal constructor(accountRepository: AccountRepos
     init {
         fixedRateTimer(period = period) {
             val currentProgress = internalProgress.value + delta
-            if (currentProgress >= 1f) updateCodes()
-            internalProgress.value = currentProgress % 1f
+            if (currentProgress >= completion) updateCodes()
+            internalProgress.value = currentProgress % completion
+        }
+        
+        if (accounts.value.isEmpty()) {
+            viewModelScope.launch {
+                for (i in 1 until 10) {
+                    accountRepository.addAccount(Account("Example A", "test$i@example.com", "$i"))
+                    accountRepository.addAccount(Account("Example B", "test$i@example.com", "$i"))
+                }
+            }
         }
     }
     

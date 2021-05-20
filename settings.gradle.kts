@@ -1,2 +1,2 @@
-rootProject.name = "My Applicationtest"
+rootProject.name = "Sync"
 include(":app")
