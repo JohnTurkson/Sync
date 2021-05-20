@@ -1,7 +1,7 @@
 package com.johnturkson.sync.di
 
-import com.johnturkson.sync.data.CodeRepository
-import com.johnturkson.sync.data.DefaultCodeRepository
+import com.johnturkson.sync.data.AccountRepository
+import com.johnturkson.sync.data.DefaultAccountRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,5 +13,5 @@ import javax.inject.Singleton
 abstract class RepositoryModule {
     @Singleton
     @Binds
-    abstract fun provideCodeRepository(repository: DefaultCodeRepository): CodeRepository
+    abstract fun provideAccountRepository(repository: DefaultAccountRepository): AccountRepository
 }

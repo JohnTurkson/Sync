@@ -4,8 +4,8 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Singleton
 
 @Singleton
-interface CodeRepository {
-    fun getCodes(): Flow<Code>
+interface AccountRepository {
+    fun getAccounts(): Flow<List<Account>>
     
-    suspend fun addCode(code: Code)
+    suspend fun addAccount(code: Account)
 }

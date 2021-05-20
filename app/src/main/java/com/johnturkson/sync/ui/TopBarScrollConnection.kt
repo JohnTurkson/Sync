@@ -5,7 +5,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 
-class SearchBarScrollConnection(
+class TopBarScrollConnection(
     private val searchBarHeightPx: Float,
     private val searchBarOffsetHeightPx: MutableState<Float>,
 ) : NestedScrollConnection {

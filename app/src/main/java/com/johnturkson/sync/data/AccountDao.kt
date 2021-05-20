@@ -6,10 +6,10 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface CodeDao {
-    @Query("SELECT * FROM codes")
-    fun getCodes(): Flow<Code>
+interface AccountDao {
+    @Query("SELECT * FROM accounts")
+    fun getAccounts(): Flow<List<Account>>
     
     @Insert
-    suspend fun addCode(code: Code)
+    suspend fun addCode(code: Account)
 }

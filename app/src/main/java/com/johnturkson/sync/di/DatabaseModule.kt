@@ -2,7 +2,7 @@ package com.johnturkson.sync.di
 
 import android.content.Context
 import androidx.room.Room
-import com.johnturkson.sync.data.CodeDao
+import com.johnturkson.sync.data.AccountDao
 import com.johnturkson.sync.data.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -21,7 +21,7 @@ class DatabaseModule {
     }
     
     @Provides
-    fun provideCodeDao(appDatabase: AppDatabase): CodeDao {
-        return appDatabase.codeDao()
+    fun provideAccountDao(appDatabase: AppDatabase): AccountDao {
+        return appDatabase.accountDao()
     }
 }
