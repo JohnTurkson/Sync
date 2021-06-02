@@ -16,12 +16,13 @@ import kotlin.concurrent.fixedRateTimer
 class HomeViewModel @Inject internal constructor(private val accountRepository: AccountRepository) : ViewModel() {
     
     private val interval = 30000L
+    private val offset = 1000L
     private val period = 3L
     private val delta = period.toFloat() / interval.toFloat()
     private val completion = 1f
     
     private val internalUpdate = MutableSharedFlow<Boolean>()
-    private val internalProgress = MutableStateFlow((System.currentTimeMillis() % interval) / interval.toFloat())
+    private val internalProgress = MutableStateFlow(((System.currentTimeMillis() - offset) % interval) / interval.toFloat())
     private val internalSearch = MutableStateFlow("")
     private val internalAccounts = MutableStateFlow<List<Account>>(emptyList())
     private val internalCodes = MutableStateFlow<List<CodeState>>(emptyList())
