@@ -5,12 +5,16 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DefaultAccountRepository @Inject constructor(private val codeDao: AccountDao) : AccountRepository {
+class DefaultAccountRepository @Inject constructor(private val accountDao: AccountDao) : AccountRepository {
     override fun getAccounts(): Flow<List<Account>> {
-        return codeDao.getAccounts()
+        return accountDao.getAccounts()
     }
     
-    override suspend fun addAccount(code: Account) {
-        codeDao.addCode(code)
+    override suspend fun addAccount(account: Account) {
+        accountDao.addAccount(account)
+    }
+    
+    override suspend fun removeAccount(account: Account) {
+        accountDao.removeAccount(account)
     }
 }

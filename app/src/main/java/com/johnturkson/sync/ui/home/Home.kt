@@ -1,35 +1,47 @@
-package com.johnturkson.sync.ui
+package com.johnturkson.sync.ui.home
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.johnturkson.sync.data.Account
+import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
+import com.johnturkson.sync.ui.CodeState
+import com.johnturkson.sync.ui.TopBarScrollConnection
 import kotlin.math.roundToInt
 
 @Composable
-fun Home() {
-    val viewModel = viewModel(HomeViewModel::class.java)
+fun Home(
+    navController: NavController,
+    viewModel: HomeViewModel,
+) {
     val progress by viewModel.progress.collectAsState()
     val search by viewModel.search.collectAsState()
     val codes by viewModel.codes.collectAsState()
+    val displayed by viewModel.displayed.collectAsState()
     
     Surface(modifier = Modifier.fillMaxSize()) {
         HomeContent(
-            codes = codes,
+            navController = navController,
+            codes = displayed,
             progress = progress,
             search = search,
             onSelect = { value -> viewModel.toggleSelection(value) },
@@ -40,6 +52,7 @@ fun Home() {
 
 @Composable
 fun HomeContent(
+    navController: NavController,
     codes: List<CodeState>,
     progress: Float,
     search: String,
@@ -50,17 +63,58 @@ fun HomeContent(
     val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
     val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
     val nestedScrollConnection = remember { TopBarScrollConnection(toolbarHeightPx, toolbarOffsetHeightPx) }
+    val listState = rememberLazyListState()
     
-    Box(modifier = Modifier.fillMaxSize().nestedScroll(nestedScrollConnection)) {
-        Column {
-            CodeRefreshIndicator(progress)
-            GroupedCodes(codes = codes, onSelect = onSelect)
+    val context = LocalContext.current
+    val permissionStatus = remember { mutableStateOf(false) }
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        permissionStatus.value = granted
+    }
+    
+    Scaffold(floatingActionButton = {
+        FloatingActionButton(onClick = {
+            if (permissionStatus.value) {
+                navController.navigate("Scanner")
+            } else {
+                val cameraPermissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                if (cameraPermissionCheck == PackageManager.PERMISSION_GRANTED) {
+                    permissionStatus.value = true
+                    navController.navigate("Scanner")
+                } else {
+                    permissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+            }
+        }) {
+            
         }
-        CodeSearchBar(
-            search,
-            { value -> onSearchChange(value) },
-            modifier = Modifier.offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt()) }
-        )
+    }) {
+        Box(modifier = Modifier.fillMaxSize().nestedScroll(nestedScrollConnection)) {
+            Column {
+                CodeRefreshIndicator(progress)
+                Codes(codes = codes, listState = listState, onSelect = onSelect)
+            }
+            CodeSearchBar(
+                search,
+                { value -> onSearchChange(value) },
+                modifier = Modifier.offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt()) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun requestCameraPermission(onPermissionDenied: () -> Unit = {}, onPermissionGranted: () -> Unit = {}) {
+    val context = LocalContext.current
+    val permission = Manifest.permission.CAMERA
+    val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) onPermissionGranted() else onPermissionDenied()
+    }
+    
+    if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+        onPermissionGranted()
+    } else {
+        permissionLauncher.launch(permission)
     }
 }
 
@@ -105,19 +159,6 @@ fun Code(state: CodeState) {
 }
 
 @Composable
-fun Codes(value: List<Account>) {
-    LazyColumn {
-        itemsIndexed(value) { index, item ->
-            // Code(item)
-            CodeDivider()
-            if (index == value.lastIndex) {
-                Spacer(modifier = Modifier.height(64.dp).fillMaxWidth())
-            }
-        }
-    }
-}
-
-@Composable
 fun CodeDivider() {
     Divider(modifier = Modifier.padding(horizontal = 16.dp))
 }
@@ -152,13 +193,13 @@ fun CodeOverflowSpacer() {
 }
 
 @Composable
-fun GroupedCodes(codes: List<CodeState>, onSelect: (CodeState) -> Unit) {
+fun Codes(codes: List<CodeState>, listState: LazyListState, onSelect: (CodeState) -> Unit) {
     val grouped = codes.groupBy { code -> code.account.issuer }
         .toSortedMap()
         .mapValues { (_, v) -> v.sortedBy { code -> code.account.name } }
     val keys = grouped.keys.toList().sorted()
     
-    LazyColumn {
+    LazyColumn(state = listState) {
         item {
             CodeOverflowSpacer()
         }

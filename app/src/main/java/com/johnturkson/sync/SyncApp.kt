@@ -1,12 +1,22 @@
 package com.johnturkson.sync
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.johnturkson.sync.theme.AppTheme
-import com.johnturkson.sync.ui.Home
+import com.johnturkson.sync.ui.home.Home
+import com.johnturkson.sync.ui.scanner.Scanner
 
 @Composable
 fun SyncApp() {
+    val navController = rememberNavController()
+    
     AppTheme {
-        Home()
+        NavHost(navController = navController, startDestination = "Home") {
+            composable("Home") { Home(navController, hiltViewModel()) }
+            composable("Scanner") { Scanner(navController, hiltViewModel()) }
+        }
     }
 }

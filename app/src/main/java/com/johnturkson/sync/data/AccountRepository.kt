@@ -7,5 +7,7 @@ import javax.inject.Singleton
 interface AccountRepository {
     fun getAccounts(): Flow<List<Account>>
     
-    suspend fun addAccount(code: Account)
+    suspend fun addAccount(account: Account)
+    
+    suspend fun removeAccount(account: Account)
 }
