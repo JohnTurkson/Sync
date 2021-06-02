@@ -9,6 +9,7 @@ import com.johnturkson.sync.ui.CodeState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 import kotlin.concurrent.fixedRateTimer
 
@@ -89,7 +90,10 @@ class HomeViewModel @Inject internal constructor(private val accountRepository: 
     
     private fun CodeState.matches(value: String): Boolean {
         if (value.isEmpty()) return true
-        return value in this.account.issuer || value in this.account.name
+        val query = value.toLowerCase(Locale.ROOT)
+        val issuer = this.account.issuer.toLowerCase(Locale.ROOT)
+        val name = this.account.name.toLowerCase(Locale.ROOT)
+        return query in issuer || query in name
     }
     
     private fun buildCodes(accounts: List<Account>): List<CodeState> {
