@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.johnturkson.sync.data.Account
 import com.johnturkson.sync.data.AccountRepository
 import com.johnturkson.sync.data.computeOTP
-import com.johnturkson.sync.ui.CodeState
+import com.johnturkson.sync.ui.state.CodeState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

@@ -38,6 +38,7 @@ fun Scanner(
     AndroidView(
         factory = { context ->
             val executor = ContextCompat.getMainExecutor(context)
+            
             val previewView = PreviewView(context).apply {
                 scaleType = PreviewView.ScaleType.FILL_CENTER
                 implementationMode = PreviewView.ImplementationMode.COMPATIBLE
@@ -72,7 +73,10 @@ fun Scanner(
         modifier = Modifier.fillMaxSize()
     )
     
-    Box(modifier = Modifier.padding(16.dp).offset(y = -64.dp), contentAlignment = Alignment.BottomCenter) {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(16.dp).offset(y = -64.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) {
         Surface(shape = RoundedCornerShape(8.dp)) {
             Text(text = "Point at Setup Code", modifier = Modifier.padding(8.dp))
         }
