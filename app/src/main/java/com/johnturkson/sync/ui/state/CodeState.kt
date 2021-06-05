@@ -1,4 +1,4 @@
-package com.johnturkson.sync.ui
+package com.johnturkson.sync.ui.state
 
 import com.johnturkson.sync.data.Account
 

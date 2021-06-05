@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.johnturkson.sync.ui.CodeState
+import com.johnturkson.sync.ui.state.CodeState
 import com.johnturkson.sync.ui.TopBarScrollConnection
 import kotlin.math.roundToInt
 
@@ -93,6 +93,7 @@ fun HomeContent(
                 CodeRefreshIndicator(progress)
                 Codes(codes = codes, listState = listState, onSelect = onSelect)
             }
+            
             CodeSearchBar(
                 search,
                 { value -> onSearchChange(value) },
@@ -123,12 +124,11 @@ fun CodeSearchBar(search: String, onValueChange: (String) -> Unit, modifier: Mod
     TextField(
         value = search,
         onValueChange = { searchValue -> onValueChange(searchValue) },
-        modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp).fillMaxWidth(),
+        modifier = modifier.padding(16.dp).fillMaxWidth(),
         placeholder = { Text("Search") },
         singleLine = true,
         shape = RoundedCornerShape(8.dp),
         colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = MaterialTheme.colors.surface,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         )
