@@ -34,7 +34,7 @@ class SetupCodeAnalyzer(
     
     private fun Barcode.extractAccountInformation(): Account? {
         val text = URLDecoder.decode(displayValue, Charsets.UTF_8.toString())
-        val pattern = "^otpauth://totp/[^:]+:(?<name>[^?]+)\\?secret=(?<secret>[^&]+)&issuer=(?<issuer>.+)$".toRegex()
+        val pattern = "^otpauth://totp/[^:]+:(?<name>[^?]+)\\?secret=(?<secret>[^&]+)&issuer=(?<issuer>[^&]+)$".toRegex()
         val match = pattern.matchEntire(text)
         val (name, secret, issuer) = match?.destructured ?: return null
         return Account(issuer, name, secret)

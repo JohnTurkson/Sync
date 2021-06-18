@@ -9,7 +9,7 @@ import com.johnturkson.sync.ui.state.CodeState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.concurrent.fixedRateTimer
 
@@ -22,16 +22,19 @@ class HomeViewModel @Inject internal constructor(private val accountRepository: 
     private val delta = period.toFloat() / interval.toFloat()
     private val completion = 1f
     
+    // TODO simplify state
     private val internalUpdate = MutableSharedFlow<Boolean>()
     private val internalProgress = MutableStateFlow(((System.currentTimeMillis() - offset) % interval) / interval.toFloat())
     private val internalSearch = MutableStateFlow("")
     private val internalAccounts = MutableStateFlow<List<Account>>(emptyList())
     private val internalCodes = MutableStateFlow<List<CodeState>>(emptyList())
     private val internalSelected = MutableStateFlow<List<Account>>(emptyList())
+    private val internalPinned = MutableStateFlow<List<Account>>(emptyList())
     private val internalDisplayed = MutableStateFlow<List<CodeState>>(emptyList())
     
     val progress = internalProgress.asStateFlow()
     val selected = internalSelected.asStateFlow()
+    val pinned = internalPinned.asStateFlow()
     val search = internalSearch.asStateFlow()
     val accounts = internalAccounts.asStateFlow()
     val codes = internalCodes.asStateFlow()
@@ -84,6 +87,18 @@ class HomeViewModel @Inject internal constructor(private val accountRepository: 
         }
     }
     
+    fun togglePin(state: CodeState) {
+        if (state.account in pinned.value) {
+            internalPinned.value -= state.account
+            internalCodes.value -= state
+            internalCodes.value += state.copy(isPinned = false)
+        } else {
+            internalPinned.value += state.account
+            internalCodes.value -= state
+            internalCodes.value += state.copy(isPinned = true)
+        }
+    }
+    
     private fun List<CodeState>.matching(value: String): List<CodeState> {
         return this.filter { state -> state.matches(value) }
     }
@@ -97,6 +112,13 @@ class HomeViewModel @Inject internal constructor(private val accountRepository: 
     }
     
     private fun buildCodes(accounts: List<Account>): List<CodeState> {
-        return accounts.map { account -> CodeState(account, account.computeOTP(), account in selected.value) }
+        return accounts.map { account ->
+            CodeState(
+                account,
+                account.computeOTP(),
+                account in selected.value,
+                account in pinned.value
+            )
+        }
     }
 }
