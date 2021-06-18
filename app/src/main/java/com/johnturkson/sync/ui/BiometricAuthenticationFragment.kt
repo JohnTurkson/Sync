@@ -19,7 +19,9 @@ class BiometricAuthenticationFragment : Fragment() {
             viewModel.unauthenticate()
         }
         
-        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+        override fun onAuthenticationError(errorCode: Int, errorString: CharSequence) {
+            // TODO handle when there are no fingerprints present
+            println("DEBUG $errorCode $errorString")
             viewModel.unauthenticate()
         }
     }

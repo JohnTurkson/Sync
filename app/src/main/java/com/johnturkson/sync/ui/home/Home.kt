@@ -22,10 +22,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.johnturkson.sync.ui.state.CodeState
+import com.johnturkson.sync.data.Account
 import com.johnturkson.sync.ui.TopBarScrollConnection
+import com.johnturkson.sync.ui.state.CodeState
 import kotlin.math.roundToInt
 
 @Composable
@@ -36,15 +39,18 @@ fun Home(
     val progress by viewModel.progress.collectAsState()
     val search by viewModel.search.collectAsState()
     val codes by viewModel.codes.collectAsState()
+    val pinned by viewModel.pinned.collectAsState()
     val displayed by viewModel.displayed.collectAsState()
     
     Surface(modifier = Modifier.fillMaxSize()) {
         HomeContent(
             navController = navController,
             codes = displayed,
+            pinned = pinned,
             progress = progress,
             search = search,
             onSelect = { value -> viewModel.toggleSelection(value) },
+            onPin = { value -> viewModel.togglePin(value) },
             onSearchChange = { value -> viewModel.search(value) }
         )
     }
@@ -54,9 +60,11 @@ fun Home(
 fun HomeContent(
     navController: NavController,
     codes: List<CodeState>,
+    pinned: List<Account>,
     progress: Float,
     search: String,
     onSelect: (CodeState) -> Unit,
+    onPin: (CodeState) -> Unit,
     onSearchChange: (String) -> Unit,
 ) {
     val toolbarHeight = 72.dp
@@ -71,15 +79,16 @@ fun HomeContent(
         permissionStatus.value = granted
     }
     
+    
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = {
             if (permissionStatus.value) {
-                navController.navigate("Scanner")
+                navController.navigate("Setup")
             } else {
                 val cameraPermissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                 if (cameraPermissionCheck == PackageManager.PERMISSION_GRANTED) {
                     permissionStatus.value = true
-                    navController.navigate("Scanner")
+                    navController.navigate("Setup")
                 } else {
                     permissionLauncher.launch(Manifest.permission.CAMERA)
                 }
@@ -91,9 +100,10 @@ fun HomeContent(
         Box(modifier = Modifier.fillMaxSize().nestedScroll(nestedScrollConnection)) {
             Column {
                 CodeRefreshIndicator(progress)
-                Codes(codes = codes, listState = listState, onSelect = onSelect)
+                Codes(codes = codes, pinned = pinned, listState = listState, onSelect = onSelect, onPin = onPin)
             }
             
+            // TODO remove transparency but preserve onSurface color
             CodeSearchBar(
                 search,
                 { value -> onSearchChange(value) },
@@ -144,17 +154,45 @@ fun CodeRefreshIndicator(progress: Float, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Code(state: CodeState) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
+fun Code(state: CodeState, onSelect: (CodeState) -> Unit, onPin: (CodeState) -> Unit) {
+    ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
+        val (issuer, code, pin) = createRefs()
+        
         Text(
+            modifier = Modifier.constrainAs(issuer) {
+                top.linkTo(parent.top)
+                start.linkTo(parent.start, 16.dp)
+                end.linkTo(pin.start, 16.dp)
+                width = Dimension.fillToConstraints
+                height = Dimension.wrapContent
+            },
             text = "${state.account.issuer} (${state.account.name})",
             style = TextStyle(fontSize = 20.sp)
         )
+        
         Text(
+            modifier = Modifier.constrainAs(code) {
+                top.linkTo(issuer.bottom)
+                start.linkTo(parent.start, 16.dp)
+                end.linkTo(pin.start, 16.dp)
+                width = Dimension.fillToConstraints
+                height = Dimension.wrapContent
+            },
             text = if (state.isVisible) state.code else "------",
             style = TextStyle(fontSize = 32.sp),
             color = MaterialTheme.colors.primary
         )
+        
+        Button(onClick = { onPin(state) }, modifier = Modifier.constrainAs(pin) {
+            top.linkTo(issuer.top)
+            bottom.linkTo(code.bottom)
+            start.linkTo(issuer.end, 16.dp)
+            end.linkTo(parent.end, 16.dp)
+            width = Dimension.wrapContent
+            height = Dimension.wrapContent
+        }) {
+            Text(text = if (state.isPinned) "pinned" else "pin")
+        }
     }
 }
 
@@ -178,10 +216,10 @@ fun CodeSpacer() {
 }
 
 @Composable
-fun CodeListItem(code: CodeState, onSelect: (CodeState) -> Unit) {
+fun CodeListItem(code: CodeState, onSelect: (CodeState) -> Unit, onPin: (CodeState) -> Unit) {
     Column(modifier = Modifier.clickable { onSelect(code) }) {
         CodeSpacer()
-        Code(code)
+        Code(code, onSelect, onPin)
         CodeSpacer()
         CodeDivider()
     }
@@ -193,15 +231,45 @@ fun CodeOverflowSpacer() {
 }
 
 @Composable
-fun Codes(codes: List<CodeState>, listState: LazyListState, onSelect: (CodeState) -> Unit) {
-    val grouped = codes.groupBy { code -> code.account.issuer }
+fun Codes(
+    codes: List<CodeState>,
+    pinned: List<Account>,
+    listState: LazyListState,
+    onSelect: (CodeState) -> Unit,
+    onPin: (CodeState) -> Unit,
+) {
+    val grouped = codes
+        .filter { code -> code.account !in pinned }
+        .groupBy { code -> code.account.issuer }
         .toSortedMap()
         .mapValues { (_, v) -> v.sortedBy { code -> code.account.name } }
     val keys = grouped.keys.toList().sorted()
     
+    val groupedPins = codes.filter { code -> code.account in pinned }
+        .groupBy { code -> code.account.issuer }
+        .toSortedMap()
+        .mapValues { (_, v) -> v.sortedBy { code -> code.account.name } }
+    val pinnedKeys = groupedPins.keys.toList().sorted()
+    
     LazyColumn(state = listState) {
         item {
             CodeOverflowSpacer()
+        }
+        
+        if (pinnedKeys.isNotEmpty()) {
+            item {
+                Text("Pins", modifier = Modifier.padding(horizontal = 16.dp))
+            }
+        }
+        
+        pinnedKeys.forEachIndexed { index, key ->
+            item {
+                CodeHeader(key)
+            }
+            
+            items(groupedPins[key] ?: emptyList()) { code ->
+                CodeListItem(code = code, onSelect = onSelect, onPin = onPin)
+            }
         }
         
         keys.forEachIndexed { index, key ->
@@ -210,14 +278,13 @@ fun Codes(codes: List<CodeState>, listState: LazyListState, onSelect: (CodeState
             }
             
             items(grouped[key] ?: emptyList()) { code ->
-                CodeListItem(code = code, onSelect = onSelect)
+                CodeListItem(code = code, onSelect = onSelect, onPin = onPin)
             }
-            
-            if (index == keys.lastIndex) {
-                item {
-                    CodeOverflowSpacer()
-                }
-            }
+        }
+        
+        
+        item {
+            CodeOverflowSpacer()
         }
     }
 }

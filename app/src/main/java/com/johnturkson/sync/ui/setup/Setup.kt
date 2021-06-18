@@ -1,4 +1,4 @@
-package com.johnturkson.sync.ui.scanner
+package com.johnturkson.sync.ui.setup
 
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -26,9 +26,9 @@ import androidx.navigation.NavController
 import com.johnturkson.sync.image.SetupCodeAnalyzer
 
 @Composable
-fun Scanner(
+fun Setup(
     navController: NavController,
-    viewModel: ScannerViewModel,
+    viewModel: SetupViewModel,
 ) {
     val localContext = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
