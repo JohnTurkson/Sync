@@ -14,7 +14,9 @@ import javax.inject.Inject
 import kotlin.concurrent.fixedRateTimer
 
 @HiltViewModel
-class HomeViewModel @Inject internal constructor(private val accountRepository: AccountRepository) : ViewModel() {
+class HomeViewModel @Inject internal constructor(
+    private val accountRepository: AccountRepository,
+) : ViewModel() {
     
     private val interval = 30000L
     private val offset = 1000L
@@ -47,7 +49,8 @@ class HomeViewModel @Inject internal constructor(private val accountRepository: 
             internalProgress.value = currentProgress % completion
         }
         
-        accountRepository.getAccounts().onEach { accounts -> internalAccounts.emit(accounts) }.launchIn(viewModelScope)
+        accountRepository.getAccounts().onEach { accounts -> internalAccounts.emit(accounts) }
+            .launchIn(viewModelScope)
         
         internalUpdate.onEach { updateCodes() }.launchIn(viewModelScope)
         
@@ -105,9 +108,9 @@ class HomeViewModel @Inject internal constructor(private val accountRepository: 
     
     private fun CodeState.matches(value: String): Boolean {
         if (value.isEmpty()) return true
-        val query = value.toLowerCase(Locale.ROOT)
-        val issuer = this.account.issuer.toLowerCase(Locale.ROOT)
-        val name = this.account.name.toLowerCase(Locale.ROOT)
+        val query = value.lowercase(Locale.ROOT)
+        val issuer = this.account.issuer.lowercase(Locale.ROOT)
+        val name = this.account.name.lowercase(Locale.ROOT)
         return query in issuer || query in name
     }
     
