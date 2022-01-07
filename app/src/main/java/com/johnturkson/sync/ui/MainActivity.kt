@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
 import com.johnturkson.sync.SyncApp
 import dagger.hilt.android.AndroidEntryPoint
 
+@ExperimentalMaterial3Api
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
     
@@ -19,14 +19,13 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE,
+        )
         
         setContent {
-            val visible by viewModel.authenticated.collectAsState()
-            
-            if (visible) {
-                SyncApp()
-            }
+            SyncApp()
         }
     }
     
@@ -34,8 +33,8 @@ class MainActivity : FragmentActivity() {
         super.onResume()
         
         supportFragmentManager.commit {
-            setReorderingAllowed(true)
-            add(BiometricAuthenticationFragment(), BiometricAuthenticationFragment::class.qualifiedName)
+            add(BiometricAuthenticationFragment(),
+                BiometricAuthenticationFragment::class.qualifiedName)
         }
     }
     

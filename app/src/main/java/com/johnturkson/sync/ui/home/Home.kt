@@ -11,7 +11,11 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Divider
+import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,10 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.johnturkson.sync.ui.state.CodeState
 import com.johnturkson.sync.ui.TopBarScrollConnection
+import com.johnturkson.sync.ui.state.CodeState
 import kotlin.math.roundToInt
 
+@ExperimentalMaterial3Api
 @Composable
 fun Home(
     navController: NavController,
@@ -50,6 +55,7 @@ fun Home(
     }
 }
 
+@ExperimentalMaterial3Api
 @Composable
 fun HomeContent(
     navController: NavController,
@@ -62,21 +68,24 @@ fun HomeContent(
     val toolbarHeight = 72.dp
     val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
     val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
-    val nestedScrollConnection = remember { TopBarScrollConnection(toolbarHeightPx, toolbarOffsetHeightPx) }
+    val nestedScrollConnection =
+        remember { TopBarScrollConnection(toolbarHeightPx, toolbarOffsetHeightPx) }
     val listState = rememberLazyListState()
     
     val context = LocalContext.current
     val permissionStatus = remember { mutableStateOf(false) }
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        permissionStatus.value = granted
-    }
+    val permissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            permissionStatus.value = granted
+        }
     
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = {
             if (permissionStatus.value) {
                 navController.navigate("Scanner")
             } else {
-                val cameraPermissionCheck = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                val cameraPermissionCheck =
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                 if (cameraPermissionCheck == PackageManager.PERMISSION_GRANTED) {
                     permissionStatus.value = true
                     navController.navigate("Scanner")
@@ -88,7 +97,9 @@ fun HomeContent(
             
         }
     }) {
-        Box(modifier = Modifier.fillMaxSize().nestedScroll(nestedScrollConnection)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(nestedScrollConnection)) {
             Column {
                 CodeRefreshIndicator(progress)
                 Codes(codes = codes, listState = listState, onSelect = onSelect)
@@ -97,20 +108,26 @@ fun HomeContent(
             CodeSearchBar(
                 search,
                 { value -> onSearchChange(value) },
-                modifier = Modifier.offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt()) }
+                modifier = Modifier.offset {
+                    IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt())
+                }
             )
         }
     }
 }
 
 @Composable
-private fun requestCameraPermission(onPermissionDenied: () -> Unit = {}, onPermissionGranted: () -> Unit = {}) {
+private fun requestCameraPermission(
+    onPermissionDenied: () -> Unit = {},
+    onPermissionGranted: () -> Unit = {},
+) {
     val context = LocalContext.current
     val permission = Manifest.permission.CAMERA
     val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) onPermissionGranted() else onPermissionDenied()
-    }
+    val permissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) onPermissionGranted() else onPermissionDenied()
+        }
     
     if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
         onPermissionGranted()
@@ -124,7 +141,9 @@ fun CodeSearchBar(search: String, onValueChange: (String) -> Unit, modifier: Mod
     TextField(
         value = search,
         onValueChange = { searchValue -> onValueChange(searchValue) },
-        modifier = modifier.padding(16.dp).fillMaxWidth(),
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
         placeholder = { Text("Search") },
         singleLine = true,
         shape = RoundedCornerShape(8.dp),
@@ -139,13 +158,17 @@ fun CodeSearchBar(search: String, onValueChange: (String) -> Unit, modifier: Mod
 fun CodeRefreshIndicator(progress: Float, modifier: Modifier = Modifier) {
     LinearProgressIndicator(
         progress = progress,
-        modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp).fillMaxWidth()
+        modifier = modifier
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+            .fillMaxWidth()
     )
 }
 
 @Composable
 fun Code(state: CodeState) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
+    Column(modifier = Modifier
+        .padding(horizontal = 16.dp)
+        .fillMaxWidth()) {
         Text(
             text = "${state.account.issuer} (${state.account.name})",
             style = TextStyle(fontSize = 20.sp)
@@ -153,7 +176,7 @@ fun Code(state: CodeState) {
         Text(
             text = if (state.isVisible) state.code else "------",
             style = TextStyle(fontSize = 32.sp),
-            color = MaterialTheme.colors.primary
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
@@ -167,7 +190,7 @@ fun CodeDivider() {
 fun CodeHeader(header: String) {
     Text(
         text = header,
-        style = MaterialTheme.typography.h6,
+        style = MaterialTheme.typography.headlineSmall,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
     )
 }

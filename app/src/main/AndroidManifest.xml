@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Sync">
         <activity
-            android:name="com.johnturkson.sync.ui.MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Sync"
             android:windowSoftInputMode="adjustResize">
