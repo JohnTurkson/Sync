@@ -3,9 +3,11 @@ package com.johnturkson.sync.ui.home
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
@@ -63,7 +64,7 @@ fun Home(
     var searchHasFocus by remember { mutableStateOf(false) }
     var accountsOverflow by remember { mutableStateOf(false) }
     val searchScrollable by remember(search, searchHasFocus, accountsOverflow) {
-        derivedStateOf { search == "" && !searchHasFocus && !accountsOverflow }
+        derivedStateOf { search == "" && !searchHasFocus && accountsOverflow }
     }
     val searchScrollBehavior = remember { TopAppBarDefaults.enterAlwaysScrollBehavior { searchScrollable } }
     
@@ -159,25 +160,28 @@ fun RefreshIndicator(progress: Float) {
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @Composable
-fun Accounts(accounts: List<Account>, codes: Map<Account, String>, onAccountsOverflow: (Boolean) -> Unit) {
+fun Accounts(
+    accounts: List<Account>,
+    codes: Map<Account, String>,
+    onAccountsOverflow: (Boolean) -> Unit,
+) {
     val listState = rememberLazyListState()
     LazyColumn(
         state = listState,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(accounts) { account ->
-            Text(
-                text = account.name,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-            )
+            Account(account = account, code = codes[account] ?: "")
+        }
+        
+        item {
+            Box(modifier = Modifier.fillMaxWidth().height(64.dp))
         }
     }
     
-    LaunchedEffect(listState) {
-        snapshotFlow { accounts.size > listState.layoutInfo.visibleItemsInfo.size }
+    LaunchedEffect(listState.layoutInfo.visibleItemsInfo) {
+        val scrollSafetyMarginItems = 5
+        snapshotFlow { accounts.size > listState.layoutInfo.visibleItemsInfo.size + scrollSafetyMarginItems }
             .distinctUntilChanged()
             .collect { overflow -> onAccountsOverflow(overflow) }
     }
@@ -185,7 +189,11 @@ fun Accounts(accounts: List<Account>, codes: Map<Account, String>, onAccountsOve
 
 @Composable
 fun Account(account: Account, code: String) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 8.dp)
+            .fillMaxWidth(),
+    ) {
         Text("${account.issuer} (${account.name})")
         Text(code)
     }
