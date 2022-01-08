@@ -1,4 +1,4 @@
-package com.johnturkson.sync.ui.home
+package com.johnturkson.sync.ui.state
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.concurrent.fixedRateTimer
 
-class RefreshState(
+class ProgressState(
     private val externalScope: CoroutineScope,
     private val interval: Long = 30000L,
 ) {
@@ -18,15 +18,15 @@ class RefreshState(
     private val completion = 1f
     
     private val _progress = MutableStateFlow(computeProgress())
-    private val _refresh = MutableSharedFlow<Unit>()
+    private val _reset = MutableSharedFlow<Unit>()
     
     val progress = _progress.asStateFlow()
-    val refresh = _refresh.asSharedFlow()
+    val reset = _reset.asSharedFlow()
     
     init {
         fixedRateTimer(period = period) {
             val currentProgress = _progress.value + delta
-            if (currentProgress >= completion) externalScope.launch { _refresh.emit(Unit) }
+            if (currentProgress >= completion) externalScope.launch { _reset.emit(Unit) }
             _progress.value = currentProgress % completion
         }
     }

@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.johnturkson.sync.ui.home.Home
-import com.johnturkson.sync.ui.scanner.Scanner
+import com.johnturkson.sync.ui.scanner.Setup
 import com.johnturkson.sync.ui.theme.SyncTheme
 
 @ExperimentalComposeUiApi
@@ -20,7 +20,7 @@ fun SyncApp() {
     SyncTheme {
         NavHost(navController = navController, startDestination = "Home") {
             composable("Home") { Home(navController, hiltViewModel()) }
-            composable("Scanner") { Scanner(navController, hiltViewModel()) }
+            composable("Setup") { Setup(navController, hiltViewModel()) }
         }
     }
 }

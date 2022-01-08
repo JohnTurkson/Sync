@@ -9,10 +9,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ScannerViewModel @Inject internal constructor(private val accountRepository: AccountRepository) : ViewModel() {
-    
+class SetupViewModel @Inject internal constructor(private val accountRepository: AccountRepository) : ViewModel() {
     fun onAccountSetup(account: Account) {
-        viewModelScope.launch { 
+        viewModelScope.launch {
             accountRepository.addAccount(account)
         }
     }

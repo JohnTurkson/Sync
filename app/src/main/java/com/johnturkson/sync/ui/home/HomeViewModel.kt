@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.johnturkson.sync.data.Account
 import com.johnturkson.sync.data.AccountRepository
 import com.johnturkson.sync.data.computeAccountCode
+import com.johnturkson.sync.ui.state.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,14 +15,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject internal constructor(accountRepository: AccountRepository) : ViewModel() {
-    private val _refreshState = RefreshState(viewModelScope)
+    private val _progressState = ProgressState(viewModelScope)
     private val _searchState = MutableStateFlow("")
     private val _accounts = MutableStateFlow(listOf<Account>())
     private val _codes = MutableStateFlow(mapOf<Account, String>())
     private val _displayed = MutableStateFlow(listOf<Account>())
     private val _selected = MutableStateFlow(setOf<Account>())
     
-    val refreshState = _refreshState
+    val progressState = _progressState
     val searchState = _searchState.asStateFlow()
     val accounts = _accounts.asStateFlow()
     val codes = _codes.asStateFlow()
@@ -31,7 +32,7 @@ class HomeViewModel @Inject internal constructor(accountRepository: AccountRepos
     init {
         accountRepository.getAccounts().onEach { accounts -> _accounts.emit(accounts) }.launchIn(viewModelScope)
         _accounts.onEach { updateAccounts() }.launchIn(viewModelScope)
-        _refreshState.refresh.onEach { updateAccountCodes() }.launchIn(viewModelScope)
+        _progressState.reset.onEach { updateAccountCodes() }.launchIn(viewModelScope)
         _searchState.onEach { updateDisplayedAccounts() }.launchIn(viewModelScope)
     }
     

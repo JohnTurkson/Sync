@@ -13,8 +13,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -26,14 +28,14 @@ import androidx.navigation.NavController
 import com.johnturkson.sync.image.SetupCodeAnalyzer
 
 @Composable
-fun Scanner(
+fun Setup(
     navController: NavController,
-    viewModel: ScannerViewModel,
+    viewModel: SetupViewModel,
 ) {
     val localContext = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraProvider = ProcessCameraProvider.getInstance(localContext)
-    val handled = remember { mutableStateOf(false) }
+    var handled by remember { mutableStateOf(false) }
     
     AndroidView(
         factory = { context ->
@@ -49,8 +51,8 @@ fun Scanner(
                     val preview = Preview.Builder().build().apply { setSurfaceProvider(previewView.surfaceProvider) }
                     val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
                     val analyzer = SetupCodeAnalyzer { account ->
-                        if (!handled.value) {
-                            handled.value = true
+                        if (!handled) {
+                            handled = true
                             viewModel.onAccountSetup(account)
                             navController.popBackStack()
                         }

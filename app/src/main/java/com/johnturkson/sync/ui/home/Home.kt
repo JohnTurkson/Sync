@@ -2,7 +2,6 @@ package com.johnturkson.sync.ui.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,14 +13,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Divider
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -56,7 +59,7 @@ fun Home(
     navController: NavController,
     viewModel: HomeViewModel,
 ) {
-    val progress by viewModel.refreshState.progress.collectAsState()
+    val progress by viewModel.progressState.progress.collectAsState()
     val search by viewModel.searchState.collectAsState()
     val codes by viewModel.codes.collectAsState()
     val displayed by viewModel.displayed.collectAsState()
@@ -68,28 +71,43 @@ fun Home(
     }
     val searchScrollBehavior = remember { TopAppBarDefaults.enterAlwaysScrollBehavior { searchScrollable } }
     
-    Scaffold(
-        modifier = Modifier.nestedScroll(searchScrollBehavior.nestedScrollConnection),
-        topBar = {
-            SearchBar(
-                searchQuery = search,
-                onSearchQueryChange = viewModel::setSearchState,
-                searchHasFocus = searchHasFocus,
-                onSearchFocusChange = { focused -> searchHasFocus = focused },
-                scrollable = searchScrollable,
-                scrollBehavior = searchScrollBehavior,
-            )
-        },
-        content = {
-            Column(modifier = Modifier.fillMaxSize()) {
-                RefreshIndicator(progress = progress)
-                Accounts(
-                    accounts = displayed,
-                    codes = codes,
-                    onAccountsOverflow = { overflow -> accountsOverflow = overflow },
+    Column {
+        RefreshIndicator(progress = progress)
+        Scaffold(
+            modifier = Modifier.nestedScroll(searchScrollBehavior.nestedScrollConnection),
+            topBar = {
+                SearchBar(
+                    searchQuery = search,
+                    onSearchQueryChange = viewModel::setSearchState,
+                    searchHasFocus = searchHasFocus,
+                    onSearchFocusChange = { focused -> searchHasFocus = focused },
+                    scrollable = searchScrollable,
+                    scrollBehavior = searchScrollBehavior,
                 )
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = { navController.navigate("Setup") }) {
+                    Icon(Icons.Default.Add, "Add an Account")
+                }
+            },
+            content = {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Accounts(
+                        accounts = displayed,
+                        codes = codes,
+                        onAccountsOverflow = { overflow -> accountsOverflow = overflow },
+                    )
+                }
             }
-        }
+        )
+    }
+}
+
+@Composable
+fun RefreshIndicator(progress: Float) {
+    LinearProgressIndicator(
+        progress = progress,
+        modifier = Modifier.padding().fillMaxWidth()
     )
 }
 
@@ -112,7 +130,7 @@ fun SearchBar(
         if (!scrollable) scrollBehavior.offset = 0f
     }
     
-    SmallTopAppBar(
+    CenterAlignedTopAppBar(
         title = {
             OutlinedTextField(
                 searchQuery,
@@ -121,7 +139,7 @@ fun SearchBar(
                     .focusRequester(focusRequester)
                     .onFocusChanged { change -> onSearchFocusChange(change.isFocused) }
                     .fillMaxWidth(),
-                placeholder = { Text("Search") },
+                placeholder = { Text("Search", fontSize = MaterialTheme.typography.bodyLarge.fontSize) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions {
@@ -149,14 +167,6 @@ fun SearchBar(
     }
 }
 
-@Composable
-fun RefreshIndicator(progress: Float) {
-    LinearProgressIndicator(
-        progress = progress,
-        modifier = Modifier.fillMaxWidth()
-    )
-}
-
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
 @Composable
@@ -166,12 +176,10 @@ fun Accounts(
     onAccountsOverflow: (Boolean) -> Unit,
 ) {
     val listState = rememberLazyListState()
-    LazyColumn(
-        state = listState,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
+    LazyColumn(state = listState) {
         items(accounts) { account ->
             Account(account = account, code = codes[account] ?: "")
+            Divider(modifier = Modifier.padding(8.dp))
         }
         
         item {
@@ -189,13 +197,13 @@ fun Accounts(
 
 @Composable
 fun Account(account: Account, code: String) {
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .fillMaxWidth(),
-    ) {
+    Column(modifier = Modifier.padding(horizontal = 8.dp).fillMaxWidth()) {
         Text("${account.issuer} (${account.name})")
-        Text(code)
+        Text(
+            code,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = MaterialTheme.typography.headlineMedium.fontSize,
+        )
     }
 }
 
