@@ -1,6 +1,6 @@
 package com.johnturkson.sync.data
 
-import java.util.*
+import java.util.Locale
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.experimental.and
