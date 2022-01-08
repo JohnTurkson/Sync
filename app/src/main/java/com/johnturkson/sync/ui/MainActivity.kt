@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.commit
 import com.johnturkson.sync.SyncApp
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,15 +25,6 @@ class MainActivity : FragmentActivity() {
         
         setContent {
             SyncApp()
-        }
-    }
-    
-    override fun onResume() {
-        super.onResume()
-        
-        supportFragmentManager.commit {
-            add(BiometricAuthenticationFragment(),
-                BiometricAuthenticationFragment::class.qualifiedName)
         }
     }
     
