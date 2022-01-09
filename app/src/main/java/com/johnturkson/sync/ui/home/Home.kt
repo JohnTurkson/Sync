@@ -23,6 +23,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -148,11 +149,9 @@ fun SearchBar(
                 },
                 trailingIcon = {
                     if (searchQuery != "") {
-                        Icon(
-                            Icons.Default.Close,
-                            "Clear Search",
-                            modifier = Modifier.clickable { onSearchQueryChange("") },
-                        )
+                        IconButton(onClick = { onSearchQueryChange("") }) {
+                            Icon(Icons.Default.Close, "Clear Search")
+                        }
                     }
                 },
             )
