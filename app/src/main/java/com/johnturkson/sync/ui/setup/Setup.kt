@@ -168,7 +168,7 @@ fun CameraPreview(onCameraResult: (Account) -> Unit) {
     )
 }
 
-fun navigateToAppSettings(context: Context) {
+private fun navigateToAppSettings(context: Context) {
     startActivity(
         context,
         Intent(
