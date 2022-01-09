@@ -46,7 +46,9 @@ class HomeViewModel @Inject internal constructor(accountRepository: AccountRepos
     }
     
     private fun updateDisplayedAccounts() {
-        _displayed.value = _accounts.value.filter { account -> searchState.value in account.name }
+        _displayed.value = _accounts.value.filter { account ->
+            searchState.value in account.name || searchState.value in account.issuer
+        }
     }
     
     fun setSearchState(search: String) {
