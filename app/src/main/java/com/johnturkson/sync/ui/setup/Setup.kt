@@ -10,12 +10,17 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -70,12 +75,69 @@ fun Setup(
             )
         },
         content = {
-            CameraPreview(onCameraResult = { account ->
-                viewModel.onAccountSetup(account)
-                navController.popBackStack()
-            })
+            CameraPreview(
+                onCameraResult = { account ->
+                    viewModel.onAccountSetup(account)
+                    navController.popBackStack()
+                },
+                onCameraClosed = {
+                    navController.popBackStack()
+                },
+            )
         },
     )
+}
+
+@Composable
+fun CameraPreview(onCameraResult: (Account) -> Unit, onCameraClosed: () -> Unit) {
+    val localContext = LocalContext.current
+    val localLifecycleOwner = LocalLifecycleOwner.current
+    val cameraProvider = ProcessCameraProvider.getInstance(localContext)
+    var cameraHandled by rememberSaveable { mutableStateOf(false) }
+    
+    Box(modifier = Modifier.fillMaxSize()) {
+        AndroidView(
+            factory = { context ->
+                val executor = ContextCompat.getMainExecutor(context)
+                
+                val previewView = PreviewView(context).apply {
+                    scaleType = PreviewView.ScaleType.FILL_CENTER
+                    implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                }
+                
+                cameraProvider.addListener(
+                    {
+                        val preview =
+                            Preview.Builder().build().apply { setSurfaceProvider(previewView.surfaceProvider) }
+                        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                        val analyzer = SetupCodeAnalyzer { account ->
+                            if (!cameraHandled) {
+                                onCameraResult(account)
+                                cameraHandled = true
+                            }
+                        }
+                        val imageAnalysis = ImageAnalysis.Builder()
+                            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                            .build()
+                            .apply { setAnalyzer(executor, analyzer) }
+                        
+                        cameraProvider.get().apply {
+                            unbindAll()
+                            bindToLifecycle(localLifecycleOwner, cameraSelector, imageAnalysis, preview)
+                        }
+                    },
+                    executor,
+                )
+                
+                previewView
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+        
+        IconButton(onClick = { onCameraClosed() }) {
+            Icon(Icons.Default.Close, contentDescription = "Exit Setup")
+        }
+    }
 }
 
 @ExperimentalPermissionsApi
@@ -120,52 +182,6 @@ fun CameraGuidance(
             }
         }
     }
-}
-
-@Composable
-fun CameraPreview(onCameraResult: (Account) -> Unit) {
-    val localContext = LocalContext.current
-    val localLifecycleOwner = LocalLifecycleOwner.current
-    val cameraProvider = ProcessCameraProvider.getInstance(localContext)
-    var cameraHandled by rememberSaveable { mutableStateOf(false) }
-    
-    AndroidView(
-        factory = { context ->
-            val executor = ContextCompat.getMainExecutor(context)
-            
-            val previewView = PreviewView(context).apply {
-                scaleType = PreviewView.ScaleType.FILL_CENTER
-                implementationMode = PreviewView.ImplementationMode.COMPATIBLE
-            }
-            
-            cameraProvider.addListener(
-                {
-                    val preview = Preview.Builder().build()
-                        .apply { setSurfaceProvider(previewView.surfaceProvider) }
-                    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-                    val analyzer = SetupCodeAnalyzer { account ->
-                        if (!cameraHandled) {
-                            cameraHandled = true
-                            onCameraResult(account)
-                        }
-                    }
-                    val imageAnalysis = ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .build()
-                        .apply { setAnalyzer(executor, analyzer) }
-                    
-                    cameraProvider.get().apply {
-                        unbindAll()
-                        bindToLifecycle(localLifecycleOwner, cameraSelector, imageAnalysis, preview)
-                    }
-                },
-                executor,
-            )
-            
-            previewView
-        },
-        modifier = Modifier.fillMaxSize()
-    )
 }
 
 private fun navigateToAppSettings(context: Context) {
