@@ -77,6 +77,9 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0")
     implementation("androidx.navigation:navigation-compose:2.4.0-rc01")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.0-rc02")
+    
+    implementation("com.google.accompanist:accompanist-permissions:0.22.0-rc")
     
     implementation("androidx.camera:camera-core:1.1.0-alpha12")
     implementation("androidx.camera:camera-camera2:1.1.0-alpha12")
@@ -85,6 +88,7 @@ dependencies {
     implementation("com.google.mlkit:barcode-scanning:17.0.1")
     
     implementation("androidx.biometric:biometric:1.2.0-alpha04")
+    
     
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")

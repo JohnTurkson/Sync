@@ -1,4 +1,4 @@
-package com.johnturkson.sync.ui.scanner
+package com.johnturkson.sync.ui.setup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -6,11 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.fragment.app.FragmentActivity
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.johnturkson.sync.SyncApp
 import dagger.hilt.android.AndroidEntryPoint
 
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
+@ExperimentalPermissionsApi
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

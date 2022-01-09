@@ -7,12 +7,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.johnturkson.sync.ui.home.Home
-import com.johnturkson.sync.ui.scanner.Setup
+import com.johnturkson.sync.ui.setup.Setup
 import com.johnturkson.sync.ui.theme.SyncTheme
 
 @ExperimentalComposeUiApi
 @ExperimentalMaterial3Api
+@ExperimentalPermissionsApi
 @Composable
 fun SyncApp() {
     val navController = rememberNavController()
