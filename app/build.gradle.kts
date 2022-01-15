@@ -73,7 +73,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.1.0-rc01")
     implementation("androidx.compose.foundation:foundation:1.1.0-rc01")
     implementation("androidx.compose.material:material:1.1.0-rc01")
-    implementation("androidx.compose.material3:material3:1.0.0-alpha02")
+    implementation("androidx.compose.material3:material3:1.0.0-alpha03")
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0")
     implementation("androidx.navigation:navigation-compose:2.4.0-rc01")
