@@ -1,19 +1,28 @@
 package com.johnturkson.sync.data
 
-import java.util.*
+import java.util.Locale
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.experimental.and
 
-fun Account.computeOTP(interval: Int = 30, offset: Int = 0, time: Long = System.currentTimeMillis() / 1000): String {
-    val key = secret.toUpperCase(Locale.ROOT)
+fun Account.computeAccountCode(
+    interval: Int = 30,
+    offset: Int = 0,
+    time: Long = System.currentTimeMillis() / 1000,
+): String {
+    val key = secret.uppercase(Locale.ROOT)
     val seed = key.decodeBase32().toHexString()
     val counter = (time - offset) / interval
-    val encoded = counter.toString(16).toUpperCase(Locale.ROOT).padStart(16, '0')
+    val encoded = counter.toString(16).uppercase(Locale.ROOT).padStart(16, '0')
     return generate(seed, encoded)
 }
 
-private fun generate(key: String, time: String, algorithm: String = "HmacSHA1", length: Int = 6): String {
+private fun generate(
+    key: String,
+    time: String,
+    algorithm: String = "HmacSHA1",
+    length: Int = 6,
+): String {
     val padding = '0'
     val padded = time.padStart(16, padding)
     val keyHex = key.toHexBytes()
@@ -79,7 +88,9 @@ private fun ByteArray.encodeBase32(): String {
     
     val encoded = this.toList()
         .map { byte -> byte.toInt() and mask }
-        .joinToString(byteSeparator) { byte -> byte.toString(radix).padStart(byteLength, byteExtension) }
+        .joinToString(byteSeparator) { byte ->
+            byte.toString(radix).padStart(byteLength, byteExtension)
+        }
         .chunked(baseLength)
         .asSequence()
         .map { bits -> bits.padEnd(baseLength, baseExtension) }
@@ -109,10 +120,10 @@ private fun String.decodeBase32(): ByteArray {
     val letterOffset = 65
     val digitOffset = 24
     
-    return this.toUpperCase(Locale.ROOT)
+    return this.uppercase(Locale.ROOT)
         .dropLastWhile { base -> base == basePadding }
         .map { base -> if (base.isLetter()) base - letterOffset else base - digitOffset }
-        .map { base -> base.toInt() }
+        .map { base -> base.code }
         .map { base -> base.toString(radix) }
         .joinToString(baseSeparator) { base -> base.padStart(baseLength, baseExtension) }
         .chunked(byteLength)
