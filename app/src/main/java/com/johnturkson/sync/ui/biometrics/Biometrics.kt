@@ -1,5 +1,6 @@
 package com.johnturkson.sync.ui.biometrics
 
+import androidx.activity.compose.BackHandler
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.Arrangement
@@ -32,24 +33,27 @@ fun Biometrics(navController: NavController) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val executor = ContextCompat.getMainExecutor(context)
     val info = with(BiometricPrompt.PromptInfo.Builder()) {
-        setTitle("title")
-        setSubtitle("subtitle")
+        setTitle("Unlock with Biometrics")
         setAllowedAuthenticators(BIOMETRIC_STRONG)
         setNegativeButtonText("Cancel")
-        setDescription("description")
         build()
     }
     val prompt = BiometricPrompt(
         context as FragmentActivity,
         executor,
         BiometricsAuthenticationCallback {
-            navController.navigate("Home") {
+            navController.popBackStack()
+            if (navController.backQueue.isEmpty()) navController.navigate("Home") {
                 popUpTo("Biometrics") { inclusive = true }
             }
         },
     )
     
     // TODO check if biometrics are enrolled
+    
+    BackHandler {
+        context.moveTaskToBack(true)
+    }
     
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
