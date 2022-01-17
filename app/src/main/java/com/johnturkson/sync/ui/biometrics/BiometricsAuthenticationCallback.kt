@@ -3,20 +3,19 @@ package com.johnturkson.sync.ui.biometrics
 import androidx.biometric.BiometricPrompt
 
 class BiometricsAuthenticationCallback(
-    val onAuthenticationError: (errorCode: Int, errorString: String) -> Unit = { _, _ -> },
-    val onAuthenticationFailed: () -> Unit = {},
-    val onAuthenticated: (result: BiometricPrompt.AuthenticationResult) -> Unit,
+    private val onError: (errorCode: Int, errorString: CharSequence) -> Unit = { _, _ -> },
+    private val onFailure: () -> Unit = {},
+    private val onSuccess: (result: BiometricPrompt.AuthenticationResult) -> Unit,
 ) : BiometricPrompt.AuthenticationCallback() {
     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-        super.onAuthenticationError(errorCode, errString)
+        onError(errorCode, errString)
     }
     
     override fun onAuthenticationFailed() {
-        super.onAuthenticationFailed()
+        onFailure()
     }
     
     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-        onAuthenticated(result)
-        super.onAuthenticationSucceeded(result)
+        onSuccess(result)
     }
 }
