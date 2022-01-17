@@ -174,6 +174,14 @@ fun Accounts(
     onAccountsOverflow: (Boolean) -> Unit,
 ) {
     val listState = rememberLazyListState()
+    
+    LaunchedEffect(listState.layoutInfo.visibleItemsInfo) {
+        val scrollSafetyMarginItems = 5
+        snapshotFlow { accounts.size > listState.layoutInfo.visibleItemsInfo.size + scrollSafetyMarginItems }
+            .distinctUntilChanged()
+            .collect { overflow -> onAccountsOverflow(overflow) }
+    }
+    
     LazyColumn(state = listState) {
         items(accounts) { account ->
             Account(account = account, code = codes[account] ?: "")
@@ -183,13 +191,6 @@ fun Accounts(
         item {
             Box(modifier = Modifier.fillMaxWidth().height(64.dp))
         }
-    }
-    
-    LaunchedEffect(listState.layoutInfo.visibleItemsInfo) {
-        val scrollSafetyMarginItems = 5
-        snapshotFlow { accounts.size > listState.layoutInfo.visibleItemsInfo.size + scrollSafetyMarginItems }
-            .distinctUntilChanged()
-            .collect { overflow -> onAccountsOverflow(overflow) }
     }
 }
 

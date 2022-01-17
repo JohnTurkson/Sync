@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.johnturkson.sync.ui.home.Home
 import com.johnturkson.sync.ui.setup.Setup
+import com.johnturkson.sync.ui.biometrics.Biometrics
 import com.johnturkson.sync.ui.theme.SyncTheme
 
 @ExperimentalComposeUiApi
@@ -20,9 +21,10 @@ fun SyncApp() {
     val navController = rememberNavController()
     
     SyncTheme {
-        NavHost(navController = navController, startDestination = "Home") {
+        NavHost(navController = navController, startDestination = "Biometrics") {
             composable("Home") { Home(navController, hiltViewModel()) }
             composable("Setup") { Setup(navController, hiltViewModel()) }
+            composable("Biometrics") { Biometrics(navController) }
         }
     }
 }
