@@ -42,9 +42,10 @@ fun Biometrics(navController: NavController) {
         context as FragmentActivity,
         executor,
         BiometricsAuthenticationCallback {
-            navController.popBackStack()
-            if (navController.backQueue.isEmpty()) navController.navigate("Home") {
+            val destination = navController.previousBackStackEntry?.destination?.route ?: "Home"
+            navController.navigate(destination) {
                 popUpTo("Biometrics") { inclusive = true }
+                launchSingleTop = true
             }
         },
     )
