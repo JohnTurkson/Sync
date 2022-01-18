@@ -27,14 +27,15 @@ fun SyncApp() {
     
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_PAUSE) navController.navigate("Biometrics") {
-                launchSingleTop = true
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                navController.navigate("Biometrics") {
+                    launchSingleTop = true
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-    
     
     SyncTheme {
         NavHost(navController = navController, startDestination = "Biometrics") {
