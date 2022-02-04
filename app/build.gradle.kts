@@ -67,7 +67,6 @@ dependencies {
     implementation("androidx.compose.material:material:1.2.0-alpha02")
     implementation("androidx.compose.material3:material3:1.0.0-alpha04")
     
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.0-rc02")
     implementation("androidx.navigation:navigation-compose:2.4.0-rc01")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     implementation("androidx.activity:activity-compose:1.4.0")
