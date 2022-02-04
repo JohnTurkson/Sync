@@ -22,8 +22,8 @@ import com.johnturkson.sync.ui.theme.SyncTheme
 @ExperimentalPermissionsApi
 @Composable
 fun SyncApp() {
-    val navController = rememberNavController()
     val lifecycleOwner = LocalLifecycleOwner.current
+    val navController = rememberNavController()
     
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
