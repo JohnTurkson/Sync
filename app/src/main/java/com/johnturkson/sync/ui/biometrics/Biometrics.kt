@@ -1,6 +1,5 @@
 package com.johnturkson.sync.ui.biometrics
 
-import androidx.activity.compose.BackHandler
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.Arrangement
@@ -51,10 +50,6 @@ fun Biometrics(navController: NavController) {
     )
     
     // TODO check if biometrics are enrolled
-    
-    BackHandler {
-        context.moveTaskToBack(true)
-    }
     
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
