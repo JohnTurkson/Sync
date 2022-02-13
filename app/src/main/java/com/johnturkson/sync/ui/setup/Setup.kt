@@ -149,14 +149,24 @@ fun CameraGuidance(
     cameraPermissionRequested: Boolean,
     onRequestCameraPermission: () -> Unit,
 ) {
-    val localContext = LocalContext.current
+    fun navigateToAppSettings(context: Context) {
+        startActivity(
+            context,
+            Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", context.packageName, null)
+            ),
+            null,
+        )
+    }
+    
+    val context = LocalContext.current
     
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        
         Surface(shape = RoundedCornerShape(8.dp)) {
             Text(
                 if (cameraPermissionGranted) "Point at Setup Code" else "Camera Permission Denied",
@@ -172,7 +182,7 @@ fun CameraGuidance(
                 Button(
                     onClick = {
                         if (cameraPermissionRequested) {
-                            navigateToAppSettings(localContext)
+                            navigateToAppSettings(context)
                         } else {
                             onRequestCameraPermission()
                         }
@@ -184,15 +194,4 @@ fun CameraGuidance(
             }
         }
     }
-}
-
-private fun navigateToAppSettings(context: Context) {
-    startActivity(
-        context,
-        Intent(
-            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-            Uri.fromParts("package", context.packageName, null)
-        ),
-        null,
-    )
 }
