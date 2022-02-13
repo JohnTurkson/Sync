@@ -10,9 +10,11 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,13 +32,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
@@ -147,50 +149,49 @@ fun CameraGuidance(
     cameraPermissionRequested: Boolean,
     onRequestCameraPermission: () -> Unit,
 ) {
-    val localContext = LocalContext.current
+    fun navigateToAppSettings(context: Context) {
+        startActivity(
+            context,
+            Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", context.packageName, null)
+            ),
+            null,
+        )
+    }
     
-    ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
-        val (guidance, button) = createRefs()
-        Surface(
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.constrainAs(guidance) {
-                centerHorizontallyTo(parent)
-                bottom.linkTo(parent.bottom, margin = 128.dp)
-            },
-        ) {
+    val context = LocalContext.current
+    
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Surface(shape = RoundedCornerShape(8.dp)) {
             Text(
                 if (cameraPermissionGranted) "Point at Setup Code" else "Camera Permission Denied",
                 modifier = Modifier.padding(8.dp)
             )
         }
         
-        if (!cameraPermissionGranted) {
-            Button(
-                onClick = {
-                    if (cameraPermissionRequested) {
-                        navigateToAppSettings(localContext)
-                    } else {
-                        onRequestCameraPermission()
-                    }
-                },
-                modifier = Modifier.constrainAs(button) {
-                    centerHorizontallyTo(guidance)
-                    top.linkTo(guidance.bottom, margin = 8.dp)
-                },
-            ) {
-                Text("Enable Camera")
+        Box(
+            modifier = Modifier.height(128.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            if (!cameraPermissionGranted) {
+                Button(
+                    onClick = {
+                        if (cameraPermissionRequested) {
+                            navigateToAppSettings(context)
+                        } else {
+                            onRequestCameraPermission()
+                        }
+                    },
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text("Enable Camera")
+                }
             }
         }
     }
-}
-
-private fun navigateToAppSettings(context: Context) {
-    startActivity(
-        context,
-        Intent(
-            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-            Uri.fromParts("package", context.packageName, null)
-        ),
-        null,
-    )
 }
