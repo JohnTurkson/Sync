@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -24,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -137,7 +137,7 @@ fun SearchBar(
                 onValueChange = { change -> onSearchQueryChange(change) },
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .onFocusChanged { change -> onSearchFocusChange(change.isFocused) }
+                    .onFocusChanged { focusState -> onSearchFocusChange(focusState.isFocused) }
                     .fillMaxWidth(),
                 placeholder = { Text("Search", fontSize = MaterialTheme.typography.bodyLarge.fontSize) },
                 singleLine = true,
