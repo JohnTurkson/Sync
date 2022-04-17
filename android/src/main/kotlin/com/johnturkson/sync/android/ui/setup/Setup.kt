@@ -43,6 +43,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.johnturkson.sync.android.data.Account
 import com.johnturkson.sync.android.image.SetupCodeAnalyzer
@@ -51,15 +52,12 @@ import com.johnturkson.sync.android.image.SetupCodeAnalyzer
 @ExperimentalMaterial3Api
 @ExperimentalPermissionsApi
 @Composable
-fun Setup(
-    navController: NavController,
-    viewModel: SetupViewModel,
-) {
+fun Setup(navController: NavController, viewModel: SetupViewModel) {
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
-    var cameraPermissionRequested by rememberSaveable(cameraPermissionState.hasPermission) { mutableStateOf(false) }
+    var cameraPermissionRequested by rememberSaveable(cameraPermissionState) { mutableStateOf(false) }
     
     LaunchedEffect(Unit) {
-        if (!cameraPermissionState.hasPermission && !cameraPermissionRequested) {
+        if (!cameraPermissionState.status.isGranted && !cameraPermissionRequested) {
             cameraPermissionState.launchPermissionRequest()
             cameraPermissionRequested = true
         }
@@ -68,7 +66,7 @@ fun Setup(
     Scaffold(
         bottomBar = {
             CameraGuidance(
-                cameraPermissionGranted = cameraPermissionState.hasPermission,
+                cameraPermissionGranted = cameraPermissionState.status.isGranted,
                 cameraPermissionRequested = cameraPermissionRequested,
                 onRequestCameraPermission = {
                     cameraPermissionState.launchPermissionRequest()
