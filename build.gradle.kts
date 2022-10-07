@@ -1,20 +1,10 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.10")
-        classpath("com.android.tools.build:gradle:7.1.0-alpha02")
-        classpath("com.google.dagger:hilt-android-gradle-plugin:2.36")
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
-    }
+plugins {
+    id("com.android.application") version "7.3.0-alpha08" apply false
+    id("com.android.library") version "7.3.0-alpha08" apply false
+    id("org.jetbrains.kotlin.jvm") version "1.6.10" apply false
+    id("org.jetbrains.kotlin.android") version "1.6.10" apply false
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.6.10" apply false
+    id("com.google.dagger.hilt.android") version "2.41" apply false
+    id("com.google.devtools.ksp") version "1.6.10-1.0.4" apply false
+    id("org.graalvm.buildtools.native") version "0.9.4" apply false
 }
