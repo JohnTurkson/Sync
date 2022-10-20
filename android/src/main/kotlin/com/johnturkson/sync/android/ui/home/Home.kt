@@ -68,37 +68,37 @@ fun Home(
     val searchScrollable by remember(search, searchHasFocus, accountsOverflow) {
         derivedStateOf { search == "" && !searchHasFocus && accountsOverflow }
     }
-    val searchScrollBehavior = remember { TopAppBarDefaults.enterAlwaysScrollBehavior { searchScrollable } }
+    // val searchScrollBehavior = remember { TopAppBarDefaults.enterAlwaysScrollBehavior { searchScrollable } }
     
     Column {
         RefreshIndicator(progress = progress)
-        Scaffold(
-            modifier = Modifier.nestedScroll(searchScrollBehavior.nestedScrollConnection),
-            topBar = {
-                SearchBar(
-                    searchQuery = search,
-                    onSearchQueryChange = viewModel::setSearchState,
-                    searchHasFocus = searchHasFocus,
-                    onSearchFocusChange = { focused -> searchHasFocus = focused },
-                    scrollable = searchScrollable,
-                    scrollBehavior = searchScrollBehavior,
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(onClick = { navController.navigate("Setup") }) {
-                    Icon(Icons.Default.Add, "Add an Account")
-                }
-            },
-            content = {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Accounts(
-                        accounts = displayed,
-                        codes = codes,
-                        onAccountsOverflow = { overflow -> accountsOverflow = overflow },
-                    )
-                }
-            }
-        )
+        // Scaffold(
+        //     modifier = Modifier.nestedScroll(searchScrollBehavior.nestedScrollConnection),
+        //     topBar = {
+        //         SearchBar(
+        //             searchQuery = search,
+        //             onSearchQueryChange = viewModel::setSearchState,
+        //             searchHasFocus = searchHasFocus,
+        //             onSearchFocusChange = { focused -> searchHasFocus = focused },
+        //             scrollable = searchScrollable,
+        //             scrollBehavior = searchScrollBehavior,
+        //         )
+        //     },
+        //     floatingActionButton = {
+        //         FloatingActionButton(onClick = { navController.navigate("Setup") }) {
+        //             Icon(Icons.Default.Add, "Add an Account")
+        //         }
+        //     },
+        //     content = {
+        //         Column(modifier = Modifier.fillMaxSize()) {
+        //             Accounts(
+        //                 accounts = displayed,
+        //                 codes = codes,
+        //                 onAccountsOverflow = { overflow -> accountsOverflow = overflow },
+        //             )
+        //         }
+        //     }
+        // )
     }
 }
 
@@ -126,7 +126,7 @@ fun SearchBar(
     val keyboard = LocalSoftwareKeyboardController.current
     
     LaunchedEffect(scrollable) {
-        if (!scrollable) scrollBehavior.offset = 0f
+        // if (!scrollable) scrollBehavior.offset = 0f
     }
     
     CenterAlignedTopAppBar(

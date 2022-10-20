@@ -65,21 +65,21 @@ fun Biometrics(navController: NavController) {
                 onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
             }
             
-            Scaffold {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Bottom
-                ) {
-                    Box(
-                        modifier = Modifier.height(128.dp).fillMaxWidth(),
-                        contentAlignment = Alignment.TopCenter
-                    ) {
-                        Button(onClick = { biometricPrompt.authenticate(biometricPromptInfo) }) {
-                            Text("Unlock")
-                        }
-                    }
-                }
-            }
+            // Scaffold {
+            //     Column(
+            //         modifier = Modifier.fillMaxSize(),
+            //         verticalArrangement = Arrangement.Bottom
+            //     ) {
+            //         Box(
+            //             modifier = Modifier.height(128.dp).fillMaxWidth(),
+            //             contentAlignment = Alignment.TopCenter
+            //         ) {
+            //             Button(onClick = { biometricPrompt.authenticate(biometricPromptInfo) }) {
+            //                 Text("Unlock")
+            //             }
+            //         }
+            //     }
+            // }
         }
         else -> {
             onAuthenticated()
